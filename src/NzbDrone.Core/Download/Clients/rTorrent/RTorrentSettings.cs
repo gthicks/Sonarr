@@ -28,6 +28,7 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
             TvCategory = "tv-sonarr";
             OlderTvPriority = (int)RTorrentPriority.Normal;
             RecentTvPriority = (int)RTorrentPriority.Normal;
+            UpgradeTvPriority = (int)RTorrentPriority.Normal;
         }
 
         [FieldDefinition(0, Label = "Host", Type = FieldType.Textbox)]
@@ -66,7 +67,10 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
         [FieldDefinition(10, Label = "DownloadClientSettingsOlderPriority", Type = FieldType.Select, SelectOptions = typeof(RTorrentPriority), HelpText = "DownloadClientSettingsOlderPriorityEpisodeHelpText")]
         public int OlderTvPriority { get; set; }
 
-        [FieldDefinition(11, Label = "DownloadClientRTorrentSettingsAddStopped", Type = FieldType.Checkbox, HelpText = "DownloadClientRTorrentSettingsAddStoppedHelpText")]
+        [FieldDefinition(11, Label = "DownloadClientSettingsUpgradePriority", Type = FieldType.Select, SelectOptions = typeof(RTorrentPriority), HelpText = "DownloadClientSettingsUpgradePriorityEpisodeHelpText")]
+        public int UpgradeTvPriority { get; set; }
+
+        [FieldDefinition(12, Label = "DownloadClientRTorrentSettingsAddStopped", Type = FieldType.Checkbox, HelpText = "DownloadClientRTorrentSettingsAddStoppedHelpText")]
         public bool AddStopped { get; set; }
 
         public override NzbDroneValidationResult Validate()

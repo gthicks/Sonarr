@@ -81,7 +81,10 @@ namespace NzbDrone.Core.Download.Clients.Transmission
         [FieldDefinition(10, Label = "DownloadClientSettingsOlderPriority", Type = FieldType.Select, SelectOptions = typeof(TransmissionPriority), HelpText = "DownloadClientSettingsOlderPriorityEpisodeHelpText")]
         public int OlderTvPriority { get; set; }
 
-        [FieldDefinition(11, Label = "DownloadClientSettingsAddPaused", Type = FieldType.Checkbox)]
+        [FieldDefinition(11, Label = "DownloadClientSettingsUpgradePriority", Type = FieldType.Select, SelectOptions = typeof(TransmissionPriority), HelpText = "DownloadClientSettingsUpgradePriorityEpisodeHelpText")]
+        public int UpgradeTvPriority { get; set; }
+
+        [FieldDefinition(12, Label = "DownloadClientSettingsAddPaused", Type = FieldType.Checkbox)]
         public bool AddPaused { get; set; }
 
         public override NzbDroneValidationResult Validate()

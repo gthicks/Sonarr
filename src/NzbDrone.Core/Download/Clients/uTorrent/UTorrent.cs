@@ -67,10 +67,9 @@ namespace NzbDrone.Core.Download.Clients.UTorrent
                 _proxy.SetTorrentLabel(hash, Settings.TvCategory, Settings);
             }
 
-            var isRecentEpisode = remoteEpisode.IsRecentEpisode();
+            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradeTvPriority : Settings.OlderTvPriority;
 
-            if ((isRecentEpisode && Settings.RecentTvPriority == (int)UTorrentPriority.First) ||
-                (!isRecentEpisode && Settings.OlderTvPriority == (int)UTorrentPriority.First))
+            if (priority == (int)UTorrentPriority.First)
             {
                 _proxy.MoveTorrentToTopInQueue(hash, Settings);
             }
@@ -90,10 +89,9 @@ namespace NzbDrone.Core.Download.Clients.UTorrent
                 _proxy.SetTorrentLabel(hash, Settings.TvCategory, Settings);
             }
 
-            var isRecentEpisode = remoteEpisode.IsRecentEpisode();
+            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradeTvPriority : Settings.OlderTvPriority;
 
-            if ((isRecentEpisode && Settings.RecentTvPriority == (int)UTorrentPriority.First) ||
-                (!isRecentEpisode && Settings.OlderTvPriority == (int)UTorrentPriority.First))
+            if (priority == (int)UTorrentPriority.First)
             {
                 _proxy.MoveTorrentToTopInQueue(hash, Settings);
             }

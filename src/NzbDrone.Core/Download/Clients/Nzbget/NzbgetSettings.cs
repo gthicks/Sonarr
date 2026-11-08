@@ -31,6 +31,7 @@ namespace NzbDrone.Core.Download.Clients.Nzbget
             TvCategory = "tv";
             RecentTvPriority = (int)NzbgetPriority.Normal;
             OlderTvPriority = (int)NzbgetPriority.Normal;
+            UpgradeTvPriority = (int)NzbgetPriority.Normal;
         }
 
         [FieldDefinition(0, Label = "Host", Type = FieldType.Textbox)]
@@ -63,7 +64,10 @@ namespace NzbDrone.Core.Download.Clients.Nzbget
         [FieldDefinition(8, Label = "DownloadClientSettingsOlderPriority", Type = FieldType.Select, SelectOptions = typeof(NzbgetPriority), HelpText = "DownloadClientSettingsOlderPriorityEpisodeHelpText")]
         public int OlderTvPriority { get; set; }
 
-        [FieldDefinition(9, Label = "DownloadClientSettingsAddPaused", Type = FieldType.Checkbox, HelpText = "DownloadClientNzbgetSettingsAddPausedHelpText")]
+        [FieldDefinition(9, Label = "DownloadClientSettingsUpgradePriority", Type = FieldType.Select, SelectOptions = typeof(NzbgetPriority), HelpText = "DownloadClientSettingsUpgradePriorityEpisodeHelpText")]
+        public int UpgradeTvPriority { get; set; }
+
+        [FieldDefinition(10, Label = "DownloadClientSettingsAddPaused", Type = FieldType.Checkbox, HelpText = "DownloadClientNzbgetSettingsAddPausedHelpText")]
         public bool AddPaused { get; set; }
 
         public override NzbDroneValidationResult Validate()

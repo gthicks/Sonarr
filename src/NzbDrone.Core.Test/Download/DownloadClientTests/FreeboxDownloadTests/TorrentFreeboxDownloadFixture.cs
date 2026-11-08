@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -201,18 +201,21 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.FreeboxDownloadTests
                   .Verify(v => v.AddTaskFromUrl(It.IsAny<string>(), It.IsAny<string>(), toBePausedFlag, It.IsAny<bool>(), It.IsAny<double?>(), It.IsAny<FreeboxDownloadSettings>()), Times.Once());
         }
 
-        [TestCase(0, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.First, true)]
-        [TestCase(0, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.First, true)]
-        [TestCase(0, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.Last, false)]
-        [TestCase(0, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.Last, false)]
-        [TestCase(15, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.First, true)]
-        [TestCase(15, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.First, false)]
-        [TestCase(15, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.Last, true)]
-        [TestCase(15, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.Last, false)]
-        public async Task Download_should_queue_torrent_first_as_expected(int ageDay, int olderPriority, int recentPriority, bool toBeQueuedFirstFlag)
+        [TestCase(0, false, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.Last, true)]
+        [TestCase(0, false, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.Last, true)]
+        [TestCase(0, false, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.Last, false)]
+        [TestCase(0, false, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.Last, false)]
+        [TestCase(15, false, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.Last, true)]
+        [TestCase(15, false, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.Last, false)]
+        [TestCase(15, false, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.Last, true)]
+        [TestCase(15, false, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.Last, false)]
+        [TestCase(15, true, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.First, (int)FreeboxDownloadPriority.Last, false)]
+        [TestCase(15, true, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.Last, (int)FreeboxDownloadPriority.First, true)]
+        public async Task Download_should_queue_torrent_first_as_expected(int ageDay, bool hasFile, int olderPriority, int recentPriority, int upgradePriority, bool toBeQueuedFirstFlag)
         {
             _settings.OlderPriority = olderPriority;
             _settings.RecentPriority = recentPriority;
+            _settings.UpgradePriority = upgradePriority;
 
             GivenDownloadConfiguration();
             GivenSuccessfulDownload();
@@ -221,7 +224,8 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.FreeboxDownloadTests
 
             var episode = new Tv.Episode()
             {
-                AirDateUtc = DateTime.UtcNow.Date.AddDays(-ageDay)
+                AirDateUtc = DateTime.UtcNow.Date.AddDays(-ageDay),
+                EpisodeFileId = hasFile ? 1 : 0
             };
 
             remoteEpisode.Episodes.Add(episode);

@@ -38,6 +38,11 @@ namespace NzbDrone.Core.Parser.Model
             return Episodes.Any(e => e.AirDateUtc >= DateTime.UtcNow.Date.AddDays(-14));
         }
 
+        public bool IsUpgrade()
+        {
+            return Episodes.Any() && Episodes.All(e => e.HasFile);
+        }
+
         public override string ToString()
         {
             return Release.Title;

@@ -34,7 +34,7 @@ namespace NzbDrone.Core.Download.Clients.NzbVortex
 
         protected override string AddFromNzbFile(RemoteEpisode remoteEpisode, string filename, byte[] fileContent)
         {
-            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : Settings.OlderTvPriority;
+            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradeTvPriority : Settings.OlderTvPriority;
 
             var response = _proxy.DownloadNzb(fileContent, filename, priority, Settings);
 

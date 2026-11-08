@@ -81,7 +81,7 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
 
         protected override string AddFromMagnetLink(RemoteEpisode remoteEpisode, string hash, string magnetLink)
         {
-            var priority = (RTorrentPriority)(remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : Settings.OlderTvPriority);
+            var priority = (RTorrentPriority)(remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradeTvPriority : Settings.OlderTvPriority);
 
             _proxy.AddTorrentFromUrl(magnetLink, Settings.TvCategory, priority, Settings.TvDirectory, Settings);
 
@@ -101,7 +101,7 @@ namespace NzbDrone.Core.Download.Clients.RTorrent
 
         protected override string AddFromTorrentFile(RemoteEpisode remoteEpisode, string hash, string filename, byte[] fileContent)
         {
-            var priority = (RTorrentPriority)(remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : Settings.OlderTvPriority);
+            var priority = (RTorrentPriority)(remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradeTvPriority : Settings.OlderTvPriority);
 
             _proxy.AddTorrentFromFile(filename, fileContent, Settings.TvCategory, priority, Settings.TvDirectory, Settings);
 

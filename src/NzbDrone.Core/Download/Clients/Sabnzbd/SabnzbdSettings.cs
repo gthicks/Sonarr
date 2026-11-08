@@ -42,6 +42,7 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
             TvCategory = "tv";
             RecentTvPriority = (int)SabnzbdPriority.Default;
             OlderTvPriority = (int)SabnzbdPriority.Default;
+            UpgradeTvPriority = (int)SabnzbdPriority.Default;
         }
 
         [FieldDefinition(0, Label = "Host", Type = FieldType.Textbox)]
@@ -76,6 +77,9 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
 
         [FieldDefinition(9, Label = "DownloadClientSettingsOlderPriority", Type = FieldType.Select, SelectOptions = typeof(SabnzbdPriority), HelpText = "DownloadClientSettingsOlderPriorityEpisodeHelpText")]
         public int OlderTvPriority { get; set; }
+
+        [FieldDefinition(10, Label = "DownloadClientSettingsUpgradePriority", Type = FieldType.Select, SelectOptions = typeof(SabnzbdPriority), HelpText = "DownloadClientSettingsUpgradePriorityEpisodeHelpText")]
+        public int UpgradeTvPriority { get; set; }
 
         public override NzbDroneValidationResult Validate()
         {

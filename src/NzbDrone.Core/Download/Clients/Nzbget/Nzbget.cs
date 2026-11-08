@@ -39,7 +39,7 @@ namespace NzbDrone.Core.Download.Clients.Nzbget
         protected override string AddFromNzbFile(RemoteEpisode remoteEpisode, string filename, byte[] fileContent)
         {
             var category = Settings.TvCategory;
-            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : Settings.OlderTvPriority;
+            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradeTvPriority : Settings.OlderTvPriority;
             var addpaused = Settings.AddPaused;
             var response = _proxy.DownloadNzb(fileContent, filename, category, priority, addpaused, Settings);
 

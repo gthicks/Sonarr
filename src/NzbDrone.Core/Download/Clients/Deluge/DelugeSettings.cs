@@ -57,13 +57,16 @@ namespace NzbDrone.Core.Download.Clients.Deluge
         [FieldDefinition(8, Label = "DownloadClientSettingsOlderPriority", Type = FieldType.Select, SelectOptions = typeof(DelugePriority), HelpText = "DownloadClientSettingsOlderPriorityEpisodeHelpText")]
         public int OlderTvPriority { get; set; }
 
-        [FieldDefinition(9, Label = "DownloadClientSettingsAddPaused", Type = FieldType.Checkbox)]
+        [FieldDefinition(9, Label = "DownloadClientSettingsUpgradePriority", Type = FieldType.Select, SelectOptions = typeof(DelugePriority), HelpText = "DownloadClientSettingsUpgradePriorityEpisodeHelpText")]
+        public int UpgradeTvPriority { get; set; }
+
+        [FieldDefinition(10, Label = "DownloadClientSettingsAddPaused", Type = FieldType.Checkbox)]
         public bool AddPaused { get; set; }
 
-        [FieldDefinition(10, Label = "DownloadClientDelugeSettingsDirectory", Type = FieldType.Textbox, HelpText = "DownloadClientDelugeSettingsDirectoryHelpText")]
+        [FieldDefinition(11, Label = "DownloadClientDelugeSettingsDirectory", Type = FieldType.Textbox, HelpText = "DownloadClientDelugeSettingsDirectoryHelpText")]
         public string DownloadDirectory { get; set; }
 
-        [FieldDefinition(11, Label = "DownloadClientDelugeSettingsDirectoryCompleted", Type = FieldType.Textbox, HelpText = "DownloadClientDelugeSettingsDirectoryCompletedHelpText")]
+        [FieldDefinition(12, Label = "DownloadClientDelugeSettingsDirectoryCompleted", Type = FieldType.Textbox, HelpText = "DownloadClientDelugeSettingsDirectoryCompletedHelpText")]
         public string CompletedDirectory { get; set; }
 
         public override NzbDroneValidationResult Validate()

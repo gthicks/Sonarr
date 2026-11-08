@@ -39,7 +39,9 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.SabnzbdTests
                                               Username = "admin",
                                               Password = "pass",
                                               TvCategory = "tv",
-                                              RecentTvPriority = (int)SabnzbdPriority.High
+                                              RecentTvPriority = (int)SabnzbdPriority.High,
+                                              OlderTvPriority = (int)SabnzbdPriority.Normal,
+                                              UpgradeTvPriority = (int)SabnzbdPriority.Paused
                                           };
             _queued = new SabnzbdQueue
                 {
@@ -371,6 +373,85 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.SabnzbdTests
 
             Mocker.GetMock<ISabnzbdProxy>()
                   .Verify(v => v.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>(), (int)SabnzbdPriority.High, It.IsAny<SabnzbdSettings>()), Times.Once());
+        }
+
+        [Test]
+        public async Task Download_should_use_sabOlderTvPriority_when_recentEpisode_is_false_and_hasFile_is_false()
+        {
+            GivenSuccessfulDownload();
+
+            var remoteEpisode = CreateRemoteEpisode();
+            remoteEpisode.Episodes = Builder<Episode>.CreateListOfSize(1)
+                                                      .All()
+                                                      .With(e => e.AirDateUtc = DateTime.UtcNow.AddDays(-30))
+                                                      .With(e => e.EpisodeFileId = 0)
+                                                      .Build()
+                                                      .ToList();
+
+            await Subject.Download(remoteEpisode, CreateIndexer());
+
+            Mocker.GetMock<ISabnzbdProxy>()
+                  .Verify(v => v.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>(), (int)SabnzbdPriority.Normal, It.IsAny<SabnzbdSettings>()), Times.Once());
+        }
+
+        [Test]
+        public async Task Download_should_use_sabUpgradeTvPriority_when_recentEpisode_is_false_and_hasFile_is_true()
+        {
+            GivenSuccessfulDownload();
+
+            var remoteEpisode = CreateRemoteEpisode();
+            remoteEpisode.Episodes = Builder<Episode>.CreateListOfSize(1)
+                                                      .All()
+                                                      .With(e => e.AirDateUtc = DateTime.UtcNow.AddDays(-30))
+                                                      .With(e => e.EpisodeFileId = 1)
+                                                      .Build()
+                                                      .ToList();
+
+            await Subject.Download(remoteEpisode, CreateIndexer());
+
+            Mocker.GetMock<ISabnzbdProxy>()
+                  .Verify(v => v.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>(), (int)SabnzbdPriority.Paused, It.IsAny<SabnzbdSettings>()), Times.Once());
+        }
+
+        [Test]
+        public async Task Download_should_use_sabRecentTvPriority_when_recentEpisode_is_true_and_hasFile_is_true()
+        {
+            GivenSuccessfulDownload();
+
+            var remoteEpisode = CreateRemoteEpisode();
+            remoteEpisode.Episodes = Builder<Episode>.CreateListOfSize(1)
+                                                      .All()
+                                                      .With(e => e.AirDateUtc = DateTime.UtcNow)
+                                                      .With(e => e.EpisodeFileId = 1)
+                                                      .Build()
+                                                      .ToList();
+
+            await Subject.Download(remoteEpisode, CreateIndexer());
+
+            Mocker.GetMock<ISabnzbdProxy>()
+                  .Verify(v => v.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>(), (int)SabnzbdPriority.High, It.IsAny<SabnzbdSettings>()), Times.Once());
+        }
+
+        [Test]
+        public async Task Download_should_use_sabOlderTvPriority_when_multi_episode_and_not_all_have_file()
+        {
+            GivenSuccessfulDownload();
+
+            var remoteEpisode = CreateRemoteEpisode();
+            remoteEpisode.Episodes = Builder<Episode>.CreateListOfSize(2)
+                                                      .All()
+                                                      .With(e => e.AirDateUtc = DateTime.UtcNow.AddDays(-30))
+                                                      .TheFirst(1)
+                                                      .With(e => e.EpisodeFileId = 1)
+                                                      .TheLast(1)
+                                                      .With(e => e.EpisodeFileId = 0)
+                                                      .Build()
+                                                      .ToList();
+
+            await Subject.Download(remoteEpisode, CreateIndexer());
+
+            Mocker.GetMock<ISabnzbdProxy>()
+                  .Verify(v => v.DownloadNzb(It.IsAny<byte[]>(), It.IsAny<string>(), It.IsAny<string>(), (int)SabnzbdPriority.Normal, It.IsAny<SabnzbdSettings>()), Times.Once());
         }
 
         [TestCase(@"Droned.S01E01.Pilot.1080p.WEB-DL-DRONE", @"Droned.S01E01_Pilot_1080p_WEB-DL-DRONE.mkv")]

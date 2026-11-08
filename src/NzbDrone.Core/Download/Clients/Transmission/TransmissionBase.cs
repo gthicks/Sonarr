@@ -200,10 +200,9 @@ namespace NzbDrone.Core.Download.Clients.Transmission
             _proxy.AddTorrentFromUrl(magnetLink, GetDownloadDirectory(), Settings);
             _proxy.SetTorrentSeedingConfiguration(hash, remoteEpisode.SeedConfiguration, Settings);
 
-            var isRecentEpisode = remoteEpisode.IsRecentEpisode();
+            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradeTvPriority : Settings.OlderTvPriority;
 
-            if ((isRecentEpisode && Settings.RecentTvPriority == (int)TransmissionPriority.First) ||
-                (!isRecentEpisode && Settings.OlderTvPriority == (int)TransmissionPriority.First))
+            if (priority == (int)TransmissionPriority.First)
             {
                 _proxy.MoveTorrentToTopInQueue(hash, Settings);
             }
@@ -216,10 +215,9 @@ namespace NzbDrone.Core.Download.Clients.Transmission
             _proxy.AddTorrentFromData(fileContent, GetDownloadDirectory(), Settings);
             _proxy.SetTorrentSeedingConfiguration(hash, remoteEpisode.SeedConfiguration, Settings);
 
-            var isRecentEpisode = remoteEpisode.IsRecentEpisode();
+            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradeTvPriority : Settings.OlderTvPriority;
 
-            if ((isRecentEpisode && Settings.RecentTvPriority == (int)TransmissionPriority.First) ||
-                (!isRecentEpisode && Settings.OlderTvPriority == (int)TransmissionPriority.First))
+            if (priority == (int)TransmissionPriority.First)
             {
                 _proxy.MoveTorrentToTopInQueue(hash, Settings);
             }

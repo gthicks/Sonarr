@@ -71,22 +71,25 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
         [FieldDefinition(10, Label = "DownloadClientSettingsOlderPriority", Type = FieldType.Select, SelectOptions = typeof(QBittorrentPriority), HelpText = "DownloadClientSettingsOlderPriorityEpisodeHelpText")]
         public int OlderTvPriority { get; set; }
 
-        [FieldDefinition(11, Label = "DownloadClientSettingsInitialState", Type = FieldType.Select, SelectOptions = typeof(QBittorrentState), HelpText = "DownloadClientQbittorrentSettingsInitialStateHelpText")]
+        [FieldDefinition(11, Label = "DownloadClientSettingsUpgradePriority", Type = FieldType.Select, SelectOptions = typeof(QBittorrentPriority), HelpText = "DownloadClientSettingsUpgradePriorityEpisodeHelpText")]
+        public int UpgradeTvPriority { get; set; }
+
+        [FieldDefinition(12, Label = "DownloadClientSettingsInitialState", Type = FieldType.Select, SelectOptions = typeof(QBittorrentState), HelpText = "DownloadClientQbittorrentSettingsInitialStateHelpText")]
         public int InitialState { get; set; }
 
-        [FieldDefinition(12, Label = "DownloadClientQbittorrentSettingsSequentialOrder", Type = FieldType.Checkbox, HelpText = "DownloadClientQbittorrentSettingsSequentialOrderHelpText")]
+        [FieldDefinition(13, Label = "DownloadClientQbittorrentSettingsSequentialOrder", Type = FieldType.Checkbox, HelpText = "DownloadClientQbittorrentSettingsSequentialOrderHelpText")]
         public bool SequentialOrder { get; set; }
 
-        [FieldDefinition(13, Label = "DownloadClientQbittorrentSettingsFirstAndLastFirst", Type = FieldType.Checkbox, HelpText = "DownloadClientQbittorrentSettingsFirstAndLastFirstHelpText")]
+        [FieldDefinition(14, Label = "DownloadClientQbittorrentSettingsFirstAndLastFirst", Type = FieldType.Checkbox, HelpText = "DownloadClientQbittorrentSettingsFirstAndLastFirstHelpText")]
         public bool FirstAndLast { get; set; }
 
-        [FieldDefinition(14, Label = "DownloadClientQbittorrentSettingsContentLayout", Type = FieldType.Select, SelectOptions = typeof(QBittorrentContentLayout), HelpText = "DownloadClientQbittorrentSettingsContentLayoutHelpText")]
+        [FieldDefinition(15, Label = "DownloadClientQbittorrentSettingsContentLayout", Type = FieldType.Select, SelectOptions = typeof(QBittorrentContentLayout), HelpText = "DownloadClientQbittorrentSettingsContentLayoutHelpText")]
         public int ContentLayout { get; set; }
 
-        [FieldDefinition(15, Label = "DownloadClientQbittorrentSettingsAddSeriesTags", Type = FieldType.Checkbox, HelpText = "DownloadClientQbittorrentSettingsAddSeriesTagsHelpText")]
+        [FieldDefinition(16, Label = "DownloadClientQbittorrentSettingsAddSeriesTags", Type = FieldType.Checkbox, HelpText = "DownloadClientQbittorrentSettingsAddSeriesTagsHelpText")]
         public bool AddSeriesTags { get; set; }
 
-        [FieldDefinition(16, Label = "DownloadClientQbittorrentSettingsSeedTimeType", Type = FieldType.Select, SelectOptions = typeof(QBittorrentSeedTimeType), HelpText = "DownloadClientQbittorrentSettingsSeedTimeTypeHelpText")]
+        [FieldDefinition(17, Label = "DownloadClientQbittorrentSettingsSeedTimeType", Type = FieldType.Select, SelectOptions = typeof(QBittorrentSeedTimeType), HelpText = "DownloadClientQbittorrentSettingsSeedTimeTypeHelpText")]
         public int SeedTimeType { get; set; }
 
         public override NzbDroneValidationResult Validate()

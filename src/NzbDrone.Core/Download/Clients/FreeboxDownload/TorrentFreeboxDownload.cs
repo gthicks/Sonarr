@@ -221,13 +221,9 @@ namespace NzbDrone.Core.Download.Clients.FreeboxDownload
 
         private bool ToBeQueuedFirst(RemoteEpisode remoteEpisode)
         {
-            if ((remoteEpisode.IsRecentEpisode() && Settings.RecentPriority == (int)FreeboxDownloadPriority.First) ||
-                (!remoteEpisode.IsRecentEpisode() && Settings.OlderPriority == (int)FreeboxDownloadPriority.First))
-            {
-                return true;
-            }
+            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradePriority : Settings.OlderPriority;
 
-            return false;
+            return priority == (int)FreeboxDownloadPriority.First;
         }
 
         private double? GetSeedRatio(RemoteEpisode remoteEpisode)

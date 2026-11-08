@@ -82,8 +82,8 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
 
             var setShareLimits = remoteEpisode.SeedConfiguration != null && (remoteEpisode.SeedConfiguration.Ratio.HasValue || remoteEpisode.SeedConfiguration.SeedTime.HasValue);
             var addHasSetShareLimits = setShareLimits && ProxyApiVersion >= new Version(2, 8, 1);
-            var isRecentEpisode = remoteEpisode.IsRecentEpisode();
-            var moveToTop = (isRecentEpisode && Settings.RecentTvPriority == (int)QBittorrentPriority.First) || (!isRecentEpisode && Settings.OlderTvPriority == (int)QBittorrentPriority.First);
+            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradeTvPriority : Settings.OlderTvPriority;
+            var moveToTop = priority == (int)QBittorrentPriority.First;
             var forceStart = (QBittorrentState)Settings.InitialState == QBittorrentState.ForceStart;
 
             try
@@ -158,8 +158,8 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
         {
             var setShareLimits = remoteEpisode.SeedConfiguration != null && (remoteEpisode.SeedConfiguration.Ratio.HasValue || remoteEpisode.SeedConfiguration.SeedTime.HasValue);
             var addHasSetShareLimits = setShareLimits && ProxyApiVersion >= new Version(2, 8, 1);
-            var isRecentEpisode = remoteEpisode.IsRecentEpisode();
-            var moveToTop = (isRecentEpisode && Settings.RecentTvPriority == (int)QBittorrentPriority.First) || (!isRecentEpisode && Settings.OlderTvPriority == (int)QBittorrentPriority.First);
+            var priority = remoteEpisode.IsRecentEpisode() ? Settings.RecentTvPriority : remoteEpisode.IsUpgrade() ? Settings.UpgradeTvPriority : Settings.OlderTvPriority;
+            var moveToTop = priority == (int)QBittorrentPriority.First;
             var forceStart = (QBittorrentState)Settings.InitialState == QBittorrentState.ForceStart;
 
             try
@@ -626,8 +626,9 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
         {
             var recentPriorityDefault = Settings.RecentTvPriority == (int)QBittorrentPriority.Last;
             var olderPriorityDefault = Settings.OlderTvPriority == (int)QBittorrentPriority.Last;
+            var upgradePriorityDefault = Settings.UpgradeTvPriority == (int)QBittorrentPriority.Last;
 
-            if (olderPriorityDefault && recentPriorityDefault)
+            if (olderPriorityDefault && recentPriorityDefault && upgradePriorityDefault)
             {
                 return null;
             }
@@ -648,6 +649,13 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
                     else if (!olderPriorityDefault)
                     {
                         return new NzbDroneValidationFailure(nameof(Settings.OlderTvPriority), _localizationService.GetLocalizedString("DownloadClientQbittorrentValidationQueueingNotEnabled"))
+                        {
+                            DetailedDescription = _localizationService.GetLocalizedString("DownloadClientQbittorrentValidationQueueingNotEnabledDetail")
+                        };
+                    }
+                    else if (!upgradePriorityDefault)
+                    {
+                        return new NzbDroneValidationFailure(nameof(Settings.UpgradeTvPriority), _localizationService.GetLocalizedString("DownloadClientQbittorrentValidationQueueingNotEnabled"))
                         {
                             DetailedDescription = _localizationService.GetLocalizedString("DownloadClientQbittorrentValidationQueueingNotEnabledDetail")
                         };

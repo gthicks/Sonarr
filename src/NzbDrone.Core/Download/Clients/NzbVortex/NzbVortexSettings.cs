@@ -33,6 +33,7 @@ namespace NzbDrone.Core.Download.Clients.NzbVortex
             TvCategory = "TV Shows";
             RecentTvPriority = (int)NzbVortexPriority.Normal;
             OlderTvPriority = (int)NzbVortexPriority.Normal;
+            UpgradeTvPriority = (int)NzbVortexPriority.Normal;
         }
 
         [FieldDefinition(0, Label = "Host", Type = FieldType.Textbox)]
@@ -57,6 +58,9 @@ namespace NzbDrone.Core.Download.Clients.NzbVortex
 
         [FieldDefinition(6, Label = "DownloadClientSettingsOlderPriority", Type = FieldType.Select, SelectOptions = typeof(NzbVortexPriority), HelpText = "DownloadClientSettingsOlderPriorityEpisodeHelpText")]
         public int OlderTvPriority { get; set; }
+
+        [FieldDefinition(7, Label = "DownloadClientSettingsUpgradePriority", Type = FieldType.Select, SelectOptions = typeof(NzbVortexPriority), HelpText = "DownloadClientSettingsUpgradePriorityEpisodeHelpText")]
+        public int UpgradeTvPriority { get; set; }
 
         public override NzbDroneValidationResult Validate()
         {
