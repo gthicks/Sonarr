@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -517,6 +517,20 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.NzbgetTests
             var error = Subject.Test();
 
             error.IsValid.Should().Be(expected);
+        }
+
+        [Test]
+        public void ResumeItem_should_call_resume_item_on_proxy()
+        {
+            var item = new DownloadClientItem
+            {
+                DownloadId = _id
+            };
+
+            Subject.ResumeItem(item);
+
+            Mocker.GetMock<INzbgetProxy>()
+                  .Verify(v => v.ResumeItem(_id, It.IsAny<NzbgetSettings>()), Times.Once());
         }
     }
 }

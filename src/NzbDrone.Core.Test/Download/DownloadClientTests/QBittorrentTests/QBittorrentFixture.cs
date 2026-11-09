@@ -1408,5 +1408,19 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.QBittorrentTests
             Mocker.GetMock<IQBittorrentProxySelector>()
                   .Verify(v => v.GetProxy(It.IsAny<QBittorrentSettings>(), true), Times.Once());
         }
+
+        [Test]
+        public void ResumeItem_should_call_resume_torrent_on_proxy()
+        {
+            var item = new DownloadClientItem
+            {
+                DownloadId = "HASH"
+            };
+
+            Subject.ResumeItem(item);
+
+            Mocker.GetMock<IQBittorrentProxy>()
+                  .Verify(v => v.ResumeTorrent("hash", It.IsAny<QBittorrentSettings>()), Times.Once());
+        }
     }
 }

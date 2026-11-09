@@ -200,6 +200,15 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
             ProcessRequest(request, settings);
         }
 
+        public void ResumeTorrent(string hash, QBittorrentSettings settings)
+        {
+            var request = BuildRequest(settings).Resource("/command/resume")
+                                                .Post()
+                                                .AddFormParameter("hash", hash);
+
+            ProcessRequest(request, settings);
+        }
+
         public void SetTorrentLabel(string hash, string label, QBittorrentSettings settings)
         {
             var setCategoryRequest = BuildRequest(settings).Resource("/command/setCategory")

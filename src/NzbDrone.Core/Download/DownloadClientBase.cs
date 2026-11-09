@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -194,6 +194,11 @@ namespace NzbDrone.Core.Download
         public virtual void MarkItemAsImported(DownloadClientItem downloadClientItem)
         {
             throw new NotSupportedException(this.Name + " does not support marking items as imported");
+        }
+
+        public virtual void ResumeItem(DownloadClientItem downloadClientItem)
+        {
+            throw new NotSupportedException(this.Name + " does not support resuming items");
         }
     }
 }

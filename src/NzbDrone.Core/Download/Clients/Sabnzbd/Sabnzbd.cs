@@ -213,6 +213,11 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
             }
         }
 
+        public override void ResumeItem(DownloadClientItem item)
+        {
+            _proxy.ResumeFromQueue(item.DownloadId, Settings);
+        }
+
         protected IEnumerable<SabnzbdCategory> GetCategories(SabnzbdConfig config)
         {
             var completeDir = new OsPath(config.Misc.complete_dir);

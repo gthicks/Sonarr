@@ -25,10 +25,12 @@ import TableBody from 'Components/Table/TableBody';
 import TableOptionsModal from 'Components/Table/TableOptions/TableOptionsModal';
 import TablePager from 'Components/Table/TablePager';
 import useEpisodes from 'Episode/useEpisodes';
+import EpisodeFileProvider from 'EpisodeFile/EpisodeFileProvider';
 import { useCustomFiltersList } from 'Filters/useCustomFilters';
 import { align, icons, kinds } from 'Helpers/Props';
 import { SortDirection } from 'Helpers/Props/sortDirections';
 import InteractiveImportModal from 'InteractiveImport/InteractiveImportModal';
+import useSeries from 'Series/useSeries';
 import { CheckInputChanged } from 'typings/inputs';
 import QueueModel from 'typings/Queue';
 import { TableOptionsChangePayload } from 'typings/Table';
@@ -51,12 +53,14 @@ import {
   setQueueRefreshBlocked,
 } from './queueRefresh';
 import QueueRow from './QueueRow';
+import QueueSeriesGroup from './QueueSeriesGroup';
 import RemoveQueueItemModal from './RemoveQueueItemModal';
 import useQueueStatus from './Status/useQueueStatus';
 import useQueue, {
   useFilters,
   useGrabQueueItems,
   useRemoveQueueItems,
+  useResumeQueueItems,
 } from './useQueue';
 
 function QueueContent() {
@@ -74,13 +78,21 @@ function QueueContent() {
     goToPage,
   } = useQueue();
 
-  const { columns, pageSize, sortKey, sortDirection, selectedFilterKey } =
-    useQueueOptions();
+  const {
+    columns,
+    pageSize,
+    sortKey,
+    sortDirection,
+    selectedFilterKey,
+    groupBySeries,
+  } = useQueueOptions();
 
   const filters = useFilters();
+  const { seriesMap } = useSeries();
 
   const { isRemoving, removeQueueItems } = useRemoveQueueItems();
   const { isGrabbing, grabQueueItems } = useGrabQueueItems();
+  const { isResuming, resumeQueueItems } = useResumeQueueItems();
 
   const { count } = useQueueStatus();
 
@@ -89,11 +101,22 @@ function QueueContent() {
   }, [records]);
 
   const {
+    data: episodes,
     isFetching: isEpisodesFetching,
     isFetched: isEpisodesFetched,
     isPlaceholderData: isEpisodesPlaceholderData,
     error: episodesError,
   } = useEpisodes({ episodeIds }, { keepPreviousData: true });
+
+  const episodeFileIds = useMemo(() => {
+    return Array.from(
+      new Set(
+        episodes
+          .map((e) => e.episodeFileId)
+          .filter((id): id is number => !!id && id > 0)
+      )
+    );
+  }, [episodes]);
 
   const customFilters = useCustomFiltersList('queue');
 
@@ -112,6 +135,15 @@ function QueueContent() {
       return selectedIds.indexOf(item.id) > -1 && item.status === 'delay';
     });
   }, [records, selectedIds]);
+
+  const pausedSelectedIds = useMemo(() => {
+    return selectedIds.filter((id) => {
+      const item = records.find((i) => i.id === id);
+      return item?.status === 'paused';
+    });
+  }, [records, selectedIds]);
+
+  const isPausedSelected = pausedSelectedIds.length > 0;
 
   const completedDownloadIds = useMemo(
     () =>
@@ -157,7 +189,77 @@ function QueueContent() {
     isConfirmRemoveModalOpen ||
     isInteractiveImportDownloadIds.length > 0 ||
     isRemoving ||
-    isGrabbing;
+    isGrabbing ||
+    isResuming;
+
+  const seriesGroups = useMemo(() => {
+    const groups = new Map<string, { seriesId?: number; items: QueueModel[] }>();
+
+    records.forEach((item) => {
+      const key =
+        item.seriesId !== undefined ? String(item.seriesId) : 'unknown';
+      const existing = groups.get(key);
+
+      if (existing) {
+        existing.items.push(item);
+      } else {
+        groups.set(key, {
+          seriesId: item.seriesId,
+          items: [item],
+        });
+      }
+    });
+
+    return Array.from(groups.entries())
+      .map(([key, value]) => ({
+        key,
+        ...value,
+        sortTitle:
+          value.seriesId !== undefined
+            ? seriesMap.get(value.seriesId)?.sortTitle ?? ''
+            : '\uffff',
+      }))
+      .sort((a, b) => a.sortTitle.localeCompare(b.sortTitle));
+  }, [records, seriesMap]);
+
+  const [expandedSeriesState, setExpandedSeriesState] = useState<
+    Record<string, boolean>
+  >({});
+
+  const allSeriesExpanded = useMemo(() => {
+    if (seriesGroups.length === 0) {
+      return true;
+    }
+
+    return seriesGroups.every(
+      (group) => expandedSeriesState[group.key] ?? true
+    );
+  }, [seriesGroups, expandedSeriesState]);
+
+  const handleExpandSeriesPress = useCallback(
+    (seriesKey: string, isExpanded: boolean) => {
+      setExpandedSeriesState((prev) => ({
+        ...prev,
+        [seriesKey]: isExpanded,
+      }));
+    },
+    []
+  );
+
+  const handleExpandAllPress = useCallback(() => {
+    const nextExpanded = !allSeriesExpanded;
+    const nextState: Record<string, boolean> = {};
+
+    seriesGroups.forEach((group) => {
+      nextState[group.key] = nextExpanded;
+    });
+
+    setExpandedSeriesState(nextState);
+  }, [allSeriesExpanded, seriesGroups]);
+
+  const handleToggleGroupBySeriesPress = useCallback(() => {
+    setQueueOption('groupBySeries', !groupBySeries);
+  }, [groupBySeries]);
 
   const handleSelectAllChange = useCallback(
     ({ value }: CheckInputChanged) => {
@@ -185,6 +287,12 @@ function QueueContent() {
   const handleGrabSelectedPress = useCallback(() => {
     grabQueueItems({ ids: selectedIds });
   }, [selectedIds, grabQueueItems]);
+
+  const handleResumeSelectedPress = useCallback(() => {
+    if (pausedSelectedIds.length > 0) {
+      resumeQueueItems({ ids: pausedSelectedIds });
+    }
+  }, [pausedSelectedIds, resumeQueueItems]);
 
   const handleRemoveSelectedPress = useCallback(() => {
     setIsConfirmRemoveModalOpen(true);
@@ -302,6 +410,17 @@ function QueueContent() {
         />
 
         <ToolbarItem
+          id="resume-selected"
+          priority={1}
+          groupId="left-b"
+          label={translate('ResumeSelected')}
+          iconName={icons.RESUME}
+          isDisabled={disableSelectedActions || !isPausedSelected}
+          isSpinning={isResuming}
+          onPress={handleResumeSelectedPress}
+        />
+
+        <ToolbarItem
           id="remove-selected"
           priority={1}
           groupId="left-b"
@@ -327,6 +446,35 @@ function QueueContent() {
         />
 
         <PageToolbarSpacer />
+
+        {groupBySeries ? (
+          <ToolbarItem
+            id="expand-all"
+            priority={2}
+            groupId="right"
+            label={
+              allSeriesExpanded
+                ? translate('CollapseAll')
+                : translate('ExpandAll')
+            }
+            iconName={allSeriesExpanded ? icons.COLLAPSE : icons.EXPAND}
+            isDisabled={!records.length}
+            onPress={handleExpandAllPress}
+          />
+        ) : null}
+
+        <ToolbarItem
+          id="group-by-series"
+          priority={2}
+          groupId="right"
+          label={
+            groupBySeries
+              ? translate('Ungroup')
+              : translate('GroupBySeries')
+          }
+          iconName={groupBySeries ? icons.UNGROUP : icons.GROUP}
+          onPress={handleToggleGroupBySeriesPress}
+        />
 
         <ToolbarItem
           id="options"
@@ -367,43 +515,67 @@ function QueueContent() {
         ) : null}
 
         {isAllPopulated && !!records.length ? (
-          <div>
-            <Table
-              selectAll={true}
-              allSelected={allSelected}
-              allUnselected={allUnselected}
-              columns={columns}
-              pageSize={pageSize}
-              sortKey={sortKey}
-              sortDirection={sortDirection}
-              onTableOptionChange={handleTableOptionChange}
-              onSelectAllChange={handleSelectAllChange}
-              onSortPress={handleSortPress}
-            >
-              <TableBody>
-                {records.map((item) => {
-                  return (
-                    <QueueRow
-                      key={item.id}
+          <EpisodeFileProvider episodeFileIds={episodeFileIds}>
+            <div>
+              {groupBySeries ? (
+                <div>
+                  {seriesGroups.map((group) => (
+                    <QueueSeriesGroup
+                      key={group.key}
+                      seriesId={group.seriesId}
+                      items={group.items}
                       columns={columns}
-                      {...item}
+                      sortKey={sortKey}
+                      sortDirection={sortDirection}
+                      isExpanded={expandedSeriesState[group.key] ?? true}
+                      onExpandPress={handleExpandSeriesPress}
+                      onSortPress={handleSortPress}
+                      onTableOptionChange={handleTableOptionChange}
                       onQueueRowModalOpenOrClose={
                         handleQueueRowModalOpenOrClose
                       }
                     />
-                  );
-                })}
-              </TableBody>
-            </Table>
+                  ))}
+                </div>
+              ) : (
+                <Table
+                  selectAll={true}
+                  allSelected={allSelected}
+                  allUnselected={allUnselected}
+                  columns={columns}
+                  pageSize={pageSize}
+                  sortKey={sortKey}
+                  sortDirection={sortDirection}
+                  onTableOptionChange={handleTableOptionChange}
+                  onSelectAllChange={handleSelectAllChange}
+                  onSortPress={handleSortPress}
+                >
+                  <TableBody>
+                    {records.map((item) => {
+                      return (
+                        <QueueRow
+                          key={item.id}
+                          columns={columns}
+                          {...item}
+                          onQueueRowModalOpenOrClose={
+                            handleQueueRowModalOpenOrClose
+                          }
+                        />
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              )}
 
-            <TablePager
-              page={page}
-              totalPages={totalPages}
-              totalRecords={totalRecords}
-              isFetching={isFetching && isPlaceholderData}
-              onPageSelect={goToPage}
-            />
-          </div>
+              <TablePager
+                page={page}
+                totalPages={totalPages}
+                totalRecords={totalRecords}
+                isFetching={isFetching && isPlaceholderData}
+                onPageSelect={goToPage}
+              />
+            </div>
+          </EpisodeFileProvider>
         ) : null}
       </PageContentBody>
 

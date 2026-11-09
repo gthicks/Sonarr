@@ -510,5 +510,19 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.TransmissionTests
             item.CanBeRemoved.Should().BeTrue();
             item.CanMoveFiles.Should().BeTrue();
         }
+
+        [Test]
+        public void ResumeItem_should_call_start_torrent_on_proxy()
+        {
+            var item = new DownloadClientItem
+            {
+                DownloadId = "HASH"
+            };
+
+            Subject.ResumeItem(item);
+
+            Mocker.GetMock<ITransmissionProxy>()
+                  .Verify(v => v.StartTorrent("hash", It.IsAny<TransmissionSettings>()), Times.Once());
+        }
     }
 }

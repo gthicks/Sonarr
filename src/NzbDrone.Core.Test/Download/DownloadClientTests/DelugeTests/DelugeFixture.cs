@@ -364,5 +364,19 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.DelugeTests
             Mocker.GetMock<IDelugeProxy>()
                   .Verify(v => v.ReconnectToDaemon(It.IsAny<DelugeSettings>()), Times.Exactly(2));
         }
+
+        [Test]
+        public void ResumeItem_should_call_resume_torrent_on_proxy()
+        {
+            var item = new DownloadClientItem
+            {
+                DownloadId = "HASH"
+            };
+
+            Subject.ResumeItem(item);
+
+            Mocker.GetMock<IDelugeProxy>()
+                  .Verify(v => v.ResumeTorrent("hash", It.IsAny<DelugeSettings>()), Times.Once());
+        }
     }
 }

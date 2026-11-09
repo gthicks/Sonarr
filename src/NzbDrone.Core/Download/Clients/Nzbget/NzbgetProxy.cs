@@ -20,6 +20,7 @@ namespace NzbDrone.Core.Download.Clients.Nzbget
         string GetVersion(NzbgetSettings settings);
         Dictionary<string, string> GetConfig(NzbgetSettings settings);
         void RemoveItem(string id, NzbgetSettings settings);
+        void ResumeItem(string id, NzbgetSettings settings);
         void RetryDownload(string id, NzbgetSettings settings);
     }
 
@@ -198,6 +199,33 @@ namespace NzbDrone.Core.Download.Clients.Nzbget
             {
                 _logger.Warn("Unable to remove item from nzbget, Unknown ID: {0}", id);
                 return;
+            }
+        }
+
+        public void ResumeItem(string id, NzbgetSettings settings)
+        {
+            var queue = GetQueue(settings);
+            NzbgetQueueItem queueItem;
+
+            if (id.Length < 10 && int.TryParse(id, out var nzbId))
+            {
+                queueItem = queue.SingleOrDefault(h => h.NzbId == nzbId);
+            }
+            else
+            {
+                queueItem = queue.SingleOrDefault(h => h.Parameters.Any(p => p.Name == "drone" && id == (p.Value as string)));
+            }
+
+            if (queueItem != null)
+            {
+                if (!EditQueue("GroupResume", 0, "", queueItem.NzbId, settings))
+                {
+                    _logger.Warn("Failed to resume item in nzbget queue, {0} [{1}]", queueItem.NzbName, queueItem.NzbId);
+                }
+            }
+            else
+            {
+                _logger.Warn("Unable to resume item in nzbget, Unknown ID: {0}", id);
             }
         }
 

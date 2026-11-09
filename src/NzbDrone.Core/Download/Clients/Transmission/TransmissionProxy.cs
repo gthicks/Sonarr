@@ -24,6 +24,7 @@ namespace NzbDrone.Core.Download.Clients.Transmission
         string GetProtocolVersion(TransmissionSettings settings);
         string GetClientVersion(TransmissionSettings settings, bool force = false);
         void RemoveTorrent(string hash, bool removeData, TransmissionSettings settings);
+        void StartTorrent(string hashString, TransmissionSettings settings);
         void MoveTorrentToTopInQueue(string hashString, TransmissionSettings settings);
         void SetTorrentLabels(string hash, IEnumerable<string> labels, TransmissionSettings settings);
     }
@@ -165,6 +166,16 @@ namespace NzbDrone.Core.Download.Clients.Transmission
             };
 
             ProcessRequest("torrent-remove", arguments, settings);
+        }
+
+        public void StartTorrent(string hashString, TransmissionSettings settings)
+        {
+            var arguments = new Dictionary<string, object>
+            {
+                { "ids", new List<string> { hashString } }
+            };
+
+            ProcessRequest("torrent-start", arguments, settings);
         }
 
         public void MoveTorrentToTopInQueue(string hashString, TransmissionSettings settings)

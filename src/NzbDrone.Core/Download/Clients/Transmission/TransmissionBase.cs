@@ -184,6 +184,11 @@ namespace NzbDrone.Core.Download.Clients.Transmission
             _proxy.RemoveTorrent(item.DownloadId.ToLower(), deleteData, Settings);
         }
 
+        public override void ResumeItem(DownloadClientItem item)
+        {
+            _proxy.StartTorrent(item.DownloadId.ToLower(), Settings);
+        }
+
         public override DownloadClientInfo GetStatus()
         {
             var destDir = GetDownloadDirectory() ?? _proxy.GetConfig(Settings).DownloadDir;

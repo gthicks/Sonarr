@@ -37,10 +37,15 @@ import formatCustomFormatScore from 'Utilities/Number/formatCustomFormatScore';
 import translate from 'Utilities/String/translate';
 import EpisodeCellContent from './EpisodeCellContent';
 import EpisodeTitleCellContent from './EpisodeTitleCellContent';
+import ExistingQualityCellContent from './ExistingQualityCellContent';
 import QueueStatusCell from './QueueStatusCell';
 import RemoveQueueItemModal from './RemoveQueueItemModal';
 import TimeLeftCell from './TimeLeftCell';
-import { useGrabQueueItem, useRemoveQueueItem } from './useQueue';
+import {
+  useGrabQueueItem,
+  useRemoveQueueItem,
+  useResumeQueueItem,
+} from './useQueue';
 import styles from './QueueRow.module.css';
 
 interface QueueRowProps {
@@ -113,6 +118,8 @@ function QueueRow(props: QueueRowProps) {
     useUiSettingsValues();
   const { removeQueueItem, isRemoving } = useRemoveQueueItem(id);
   const { grabQueueItem, isGrabbing, grabError } = useGrabQueueItem(id);
+  const { resumeQueueItem, isResuming, resumeError } =
+    useResumeQueueItem(id);
   const { toggleSelected, useIsSelected } = useSelect<Queue>();
   const isSelected = useIsSelected(id);
 
@@ -125,6 +132,10 @@ function QueueRow(props: QueueRowProps) {
   const handleGrabPress = useCallback(() => {
     grabQueueItem();
   }, [grabQueueItem]);
+
+  const handleResumePress = useCallback(() => {
+    resumeQueueItem();
+  }, [resumeQueueItem]);
 
   const handleInteractiveImportPress = useCallback(() => {
     onQueueRowModalOpenOrClose(true);
@@ -172,10 +183,12 @@ function QueueRow(props: QueueRowProps) {
     status === 'completed' && trackedDownloadStatus === 'warning';
   const isPending =
     status === 'delay' || status === 'downloadClientUnavailable';
+  const isPaused = status === 'paused';
   const interactiveImportLabel = translate('InteractiveImportWithTitle', {
     title,
   });
   const grabLabel = translate('GrabWithTitle', { title });
+  const resumeLabel = translate('ResumeWithTitle', { title });
   const removeFromQueueLabel = translate('RemoveFromQueueWithTitle', { title });
 
   return (
@@ -306,6 +319,17 @@ function QueueRow(props: QueueRowProps) {
           );
         }
 
+        if (name === 'existingQuality') {
+          return (
+            <TableRowCell key={name}>
+              <ExistingQualityCellContent
+                episodes={episodes}
+                queuedQuality={quality}
+              />
+            </TableRowCell>
+          );
+        }
+
         if (name === 'quality') {
           return (
             <TableRowCell key={name}>
@@ -419,6 +443,17 @@ function QueueRow(props: QueueRowProps) {
                   aria-label={grabLabel}
                   isSpinning={isGrabbing}
                   onPress={handleGrabPress}
+                />
+              ) : null}
+
+              {isPaused ? (
+                <SpinnerIconButton
+                  name={icons.RESUME}
+                  kind={resumeError ? kinds.DANGER : kinds.DEFAULT}
+                  title={resumeLabel}
+                  aria-label={resumeLabel}
+                  isSpinning={isResuming}
+                  onPress={handleResumePress}
                 />
               ) : null}
 

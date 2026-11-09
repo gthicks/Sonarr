@@ -15,6 +15,7 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
         string GetBaseUrl(SabnzbdSettings settings, string relativePath = null);
         SabnzbdAddResponse DownloadNzb(byte[] nzbData, string filename, string category, int priority, SabnzbdSettings settings);
         void RemoveFromQueue(string id, bool deleteData, SabnzbdSettings settings);
+        void ResumeFromQueue(string id, SabnzbdSettings settings);
         void RemoveFromHistory(string id, bool deleteData, bool deletePermanently, SabnzbdSettings settings);
         string GetVersion(SabnzbdSettings settings);
         SabnzbdConfig GetConfig(SabnzbdSettings settings);
@@ -66,6 +67,15 @@ namespace NzbDrone.Core.Download.Clients.Sabnzbd
             var request = BuildRequest("queue", settings);
             request.AddQueryParam("name", "delete");
             request.AddQueryParam("del_files", deleteData ? 1 : 0);
+            request.AddQueryParam("value", id);
+
+            ProcessRequest(request, settings);
+        }
+
+        public void ResumeFromQueue(string id, SabnzbdSettings settings)
+        {
+            var request = BuildRequest("queue", settings);
+            request.AddQueryParam("name", "resume");
             request.AddQueryParam("value", id);
 
             ProcessRequest(request, settings);

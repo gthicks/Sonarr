@@ -31,7 +31,7 @@
 .actions {
   composes: cell from 'Components/Table/Cells/TableRowCell.module.css';
 
-  width: 70px;
+  width: 90px;
   text-align: right;
   white-space: nowrap;
 }

@@ -391,6 +391,11 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
             Proxy.RemoveTorrent(item.DownloadId.ToLower(), deleteData, Settings);
         }
 
+        public override void ResumeItem(DownloadClientItem item)
+        {
+            Proxy.ResumeTorrent(item.DownloadId.ToLower(), Settings);
+        }
+
         public override IEnumerable<DownloadClientFile> GetFiles(DownloadClientItem item)
         {
             return Proxy.GetTorrentFiles(item.DownloadId.ToLower(), Settings)

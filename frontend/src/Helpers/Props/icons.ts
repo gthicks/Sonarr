@@ -203,6 +203,7 @@ export const REFRESH = RefreshCw;
 export const REMOVE = X;
 export const RESTART = RotateCcw;
 export const RESTORE = History;
+export const RESUME = Play;
 export const REORDER = Menu;
 export const ROOT_FOLDER = FolderTree;
 export const RSS = Rss;

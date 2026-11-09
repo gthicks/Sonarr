@@ -218,6 +218,11 @@ namespace NzbDrone.Core.Download.Clients.Deluge
             _proxy.RemoveTorrent(item.DownloadId.ToLower(), deleteData, Settings);
         }
 
+        public override void ResumeItem(DownloadClientItem item)
+        {
+            _proxy.ResumeTorrent(item.DownloadId.ToLower(), Settings);
+        }
+
         public override DownloadClientInfo GetStatus()
         {
             var config = _proxy.GetConfig(Settings);

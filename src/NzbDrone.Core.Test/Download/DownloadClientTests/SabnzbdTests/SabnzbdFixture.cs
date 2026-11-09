@@ -882,5 +882,14 @@ namespace NzbDrone.Core.Test.Download.DownloadClientTests.SabnzbdTests
             Mocker.GetMock<IDiskProvider>()
                   .Verify(v => v.DeleteFile(path), Times.Never);
         }
+
+        [Test]
+        public void ResumeItem_should_call_resume_from_queue_on_proxy()
+        {
+            Subject.ResumeItem(_downloadClientItem);
+
+            Mocker.GetMock<ISabnzbdProxy>()
+                  .Verify(v => v.ResumeFromQueue(_id, It.IsAny<SabnzbdSettings>()), Times.Once());
+        }
     }
 }

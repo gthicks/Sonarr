@@ -21,6 +21,7 @@ namespace NzbDrone.Core.Download.Clients.QBittorrent
         void AddTorrentFromFile(string fileName, byte[] fileContent, TorrentSeedConfiguration seedConfiguration, QBittorrentSettings settings);
 
         void RemoveTorrent(string hash, bool removeData, QBittorrentSettings settings);
+        void ResumeTorrent(string hash, QBittorrentSettings settings);
         void SetTorrentLabel(string hash, string label, QBittorrentSettings settings);
         void AddLabel(string label, QBittorrentSettings settings);
         Dictionary<string, QBittorrentLabel> GetLabels(QBittorrentSettings settings);

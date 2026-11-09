@@ -13,16 +13,18 @@ interface QueueRemovalOptions {
 }
 
 export interface QueueOptions extends PageableOptions {
+  groupBySeries: boolean;
   removalOptions: QueueRemovalOptions;
 }
 
 const { useOptions, useOption, setOptions, setOption, setSort } =
   createOptionsStore<QueueOptions>('queue_options', () => {
     return {
-      pageSize: 20,
+      pageSize: 50,
       selectedFilterKey: 'all',
       sortKey: 'time',
       sortDirection: 'descending',
+      groupBySeries: false,
       columns: [
         {
           name: 'status',
@@ -61,6 +63,12 @@ const { useOptions, useOption, setOptions, setOption, setSort } =
           label: () => translate('Languages'),
           isSortable: true,
           isVisible: false,
+        },
+        {
+          name: 'existingQuality',
+          label: () => translate('ExistingQuality'),
+          isSortable: false,
+          isVisible: true,
         },
         {
           name: 'quality',

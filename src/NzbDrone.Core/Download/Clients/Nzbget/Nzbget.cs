@@ -209,6 +209,11 @@ namespace NzbDrone.Core.Download.Clients.Nzbget
             _proxy.RemoveItem(item.DownloadId, Settings);
         }
 
+        public override void ResumeItem(DownloadClientItem item)
+        {
+            _proxy.ResumeItem(item.DownloadId, Settings);
+        }
+
         public override DownloadClientInfo GetStatus()
         {
             var config = _proxy.GetConfig(Settings);

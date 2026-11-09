@@ -205,3 +205,49 @@ export const useGrabQueueItems = () => {
     isGrabbing: isPending,
   };
 };
+
+export const useResumeQueueItem = (id: number) => {
+  const queryClient = useQueryClient();
+  const [resumeError, setResumeError] = useState<string | null>(null);
+
+  const { mutate, isPending } = useApiMutation<unknown, void>({
+    path: `/queue/resume/${id}`,
+    method: 'POST',
+    mutationOptions: {
+      onMutate: () => {
+        setResumeError(null);
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/queue'] });
+      },
+      onError: () => {
+        setResumeError('Error resuming queue item');
+      },
+    },
+  });
+
+  return {
+    resumeQueueItem: mutate,
+    isResuming: isPending,
+    resumeError,
+  };
+};
+
+export const useResumeQueueItems = () => {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useApiMutation<unknown, BulkQueueData>({
+    path: '/queue/resume/bulk',
+    method: 'POST',
+    mutationOptions: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['/queue'] });
+      },
+    },
+  });
+
+  return {
+    resumeQueueItems: mutate,
+    isResuming: isPending,
+  };
+};
